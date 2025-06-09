@@ -8,6 +8,23 @@ __pycache__/
 # C extensions
 *.so
 
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+
+# Environment variables
+.env
+*.env
+
+# Generated Data and Databases
+*.json
+/chroma_data/
+*.log
+
+
+
 # Distribution / packaging
 .Python
 build/

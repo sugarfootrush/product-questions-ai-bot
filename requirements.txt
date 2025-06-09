@@ -1,0 +1,4 @@
+python-dotenv
+slack_bolt
+google-generativeai
+chromadb
