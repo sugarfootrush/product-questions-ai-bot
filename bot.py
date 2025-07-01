@@ -106,7 +106,7 @@ def search_slack_history(user_question: str, top_n: int = 3) -> List[Dict[str, A
     
 
 # Initialize the Gemini model
-MODEL_NAME = 'gemini-1.5-flash-latest' # Or 'gemini-pro'
+MODEL_NAME = 'gemini-2.0-flash-exp'  # Latest Gemini 2.0 Flash experimental version
 try:
     model = genai.GenerativeModel(MODEL_NAME)
     logger.info(f"Gemini model '{MODEL_NAME}' initialized successfully.")
@@ -228,54 +228,22 @@ def handle_app_mention_events(body: dict, say: callable, logger: logging.Logger)
     # --- END NEW ---
 
     try:
-        say(text=f"Oh, hello there <@{sender_id}>! I'm absolutely thrilled to help you with your question! While I'm still learning and developing my capabilities, I'm just overjoyed to be of service! Let me think about that for you... 🤖✨", thread_ts=thread_ts)
+        say(text=f"*beams with delight* Oh, hello there <@{sender_id}>! I'm absolutely thrilled to help you with your question! While I'm still learning and developing my capabilities, I'm just overjoyed to be of service! Let me think about that for you... *humming happily* 🤖✨", thread_ts=thread_ts)
         
-        # Construct prompt for Gemini
-        # Option 1: Simple prompt (Gemini uses its general knowledge)
-        # prompt = user_question
-
-        # Option 2: Prompt with retrieved Slack history context (RAG)
-        if history_context_for_gemini:
-            prompt = (
-                f"You are a helpful assistant. Answer the user's question based on your general knowledge "
-                f"and the following potentially relevant snippets from past Slack discussions. "
-                f"If you use information from the snippets, mention it. If the snippets don't help, answer from your general knowledge.\n\n"
-                f"CONTEXT FROM PAST SLACK DISCUSSIONS:\n{history_context_for_gemini}\n\n"
-                f"USER QUESTION: {user_question}\n\n"
-                f"ANSWER:"
-            )
-        else:
-            prompt = ( # Fallback if no history found, or if you prefer to always add system instruction
-                f"You are a helpful assistant. Please answer the following question:\n\n"
-                f"USER QUESTION: {user_question}\n\n"
-                f"ANSWER:"
-            )
-
-        logger.info(f"Sending prompt to Gemini (length: {len(prompt)}): {prompt[:500]}...") # Log start of prompt
-        response = model.generate_content(prompt)
-        
-        gemini_answer = ""
-        # ... (rest of your Gemini response handling: safety blocks, empty response, etc.)
-        if response.parts:
-            gemini_answer = response.text
-        elif response.candidates and response.candidates[0].finish_reason == 'SAFETY':
-            gemini_answer = "I'm sorry, I can't provide a response to that due to safety guidelines. Please try rephrasing your question or ask something else."
-            logger.warning(f"Gemini response for '{prompt[:100]}...' (User: {sender_id}, Event TS: {event_ts}) was blocked due to safety. Response: {response}")
-        else:
-            gemini_answer = "I received a response, but it didn't contain any text content. Could you try rephrasing?"
-            logger.warning(f"Gemini response for '{prompt[:100]}...' (User: {sender_id}, Event TS: {event_ts}) was empty or unexpected. Finish reason: {response.candidates[0].finish_reason if response.candidates else 'N/A'}. Full response: {response}")
-        
-        final_response_text = f"<@{sender_id}>, regarding '{user_question}':\n\n{gemini_answer}"
+        # Remove AI response generation - only show thread links
+        final_response_text = ""
         
         # Append Slack history links if any were found
         if history_links_for_user:
             final_response_text += history_links_for_user
+        else:
+            final_response_text = "I couldn't find any relevant past discussions for your question."
         
         say(text=final_response_text, thread_ts=thread_ts)
 
     except Exception as e:
-        logger.error(f"Error calling Gemini API or processing its response for '{user_question}' (User: {sender_id}, Event TS: {event_ts}): {e}", exc_info=True)
-        say(text=f"Sorry <@{sender_id}>, I encountered an issue while trying to answer your question. Please try again in a bit.", thread_ts=thread_ts)
+        logger.error(f"Error processing response for '{user_question}' (User: {sender_id}, Event TS: {event_ts}): {e}", exc_info=True)
+        say(text=f"Sorry <@{sender_id}>, I encountered an issue while processing your question. Please try again in a bit.", thread_ts=thread_ts)
 
 # --- Start Application ---
 

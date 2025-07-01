@@ -33,7 +33,7 @@ COLLECTION_NAME = "slack_history" # Name of your collection in ChromaDB
 
 # Input JSON file (from slack_history_loader.py)
 # Make sure to use the actual filename you generated
-INPUT_JSON_FILE = "slack_history_C08T9PM9UAK_20250528-065142.json" # <--- UPDATE THIS FILENAME
+INPUT_JSON_FILE = "slack_history_CHAHQM1P0_20250630-230311.json" # <--- UPDATE THIS FILENAME
 
 def main():
     logger.info(f"Starting script to populate Vector DB from '{INPUT_JSON_FILE}'")

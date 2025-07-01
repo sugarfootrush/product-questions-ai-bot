@@ -107,11 +107,12 @@ def fetch_channel_history(channel_id: str, limit: int = 1000, oldest_timestamp: 
                     permalink = get_message_permalink(channel_id, msg["ts"]) # This makes an API call
                     
                     messages_data.append({
-                        "ts": msg["ts"], # Timestamp, also serves as a unique ID
-                        "thread_ts": msg.get("thread_ts"), # Important for identifying threads
+                        "ts": msg["ts"],
+                        "thread_ts": msg.get("thread_ts"),
                         "user": msg.get("user"),
-                        "text": msg.get("text", ""), # Ensure text exists, default to empty string
-                        "permalink": permalink or "" # Store permalink, default to empty string if None
+                        "text": msg.get("text", ""),
+                        "permalink": permalink or "",
+                        "channel_id": channel_id
                     })
                     fetched_count += 1
                     
@@ -169,7 +170,7 @@ if __name__ == "__main__":
         logger.error("CRITICAL: Please update TARGET_CHANNEL_ID in slack_history_loader.py before running!")
         exit(1) # Exit if the placeholder ID hasn't been changed.
         
-    historical_messages = fetch_channel_history(TARGET_CHANNEL_ID, limit=MESSAGES_TO_FETCH_LIMIT)
+    historical_messages = fetch_channel_history("CHAHQM1P0", limit=25)
 
     if historical_messages:
         logger.info(f"Successfully fetched {len(historical_messages)} messages from channel '{TARGET_CHANNEL_ID}'.")
